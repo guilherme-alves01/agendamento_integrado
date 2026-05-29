@@ -626,12 +626,16 @@ def extract_whatsapp_message(content_type: str, payload: dict[str, Any]) -> tupl
         # Meta WhatsApp Cloud API payload.
         try:
             change = payload["entry"][0]["changes"][0]["value"]
+            if not change.get("messages"):
+                return "", "", "ignored"
             message = change["messages"][0]
             phone = message.get("from", "")
             body = message.get("text", {}).get("body", "")
-            return phone, body, "json"
+            return phone, body, "cloud"
         except (KeyError, IndexError, TypeError):
-            return str(payload.get("from", "")), str(payload.get("message", "")), "json"
+            phone = str(payload.get("from", ""))
+            body = str(payload.get("message", ""))
+            return phone, body, "cloud" if phone and body else "ignored"
 
     phone = str(payload.get("From", payload.get("from", "")))
     body = str(payload.get("Body", payload.get("body", "")))
@@ -675,6 +679,7 @@ def send_whatsapp_text(phone: str, text: str) -> tuple[bool, str]:
     meta_token = os.getenv("WHATSAPP_ACCESS_TOKEN")
     phone_number_id = os.getenv("WHATSAPP_PHONE_NUMBER_ID")
     if meta_token and phone_number_id:
+        graph_version = os.getenv("WHATSAPP_GRAPH_VERSION", "v25.0")
         payload = {
             "messaging_product": "whatsapp",
             "to": clean_phone,
@@ -682,7 +687,7 @@ def send_whatsapp_text(phone: str, text: str) -> tuple[bool, str]:
             "text": {"preview_url": False, "body": text},
         }
         request = urllib.request.Request(
-            f"https://graph.facebook.com/v20.0/{phone_number_id}/messages",
+            f"https://graph.facebook.com/{graph_version}/{phone_number_id}/messages",
             data=json.dumps(payload).encode("utf-8"),
             headers={
                 "Authorization": f"Bearer {meta_token}",
@@ -903,10 +908,16 @@ class AppHandler(BaseHTTPRequestHandler):
 
         if path == "/webhook/whatsapp":
             phone, body, provider = extract_whatsapp_message(content_type, payload)
+            if provider == "ignored" or not body.strip():
+                send_json(self, {"ok": True, "ignored": True})
+                return
             reply = whatsapp_reply(phone, body)
             if provider == "twilio":
                 twiml = f"<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Message>{html.escape(reply)}</Message></Response>"
                 send_text(self, twiml, content_type="text/xml; charset=utf-8")
+            elif provider == "cloud":
+                ok, info = send_whatsapp_text(phone, reply)
+                send_json(self, {"ok": ok, "message": info})
             else:
                 send_json(self, {"reply": reply})
             return

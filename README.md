@@ -209,6 +209,8 @@ Para verificar o webhook, configure o token:
 
 ```powershell
 $env:WHATSAPP_VERIFY_TOKEN="agenda-bot"
+$env:WHATSAPP_ACCESS_TOKEN="token-da-meta"
+$env:WHATSAPP_PHONE_NUMBER_ID="id-do-numero"
 python app.py
 ```
 
@@ -218,13 +220,22 @@ Use a URL:
 https://SEU-DOMINIO/webhook/whatsapp
 ```
 
-O endpoint aceita o payload de entrada da Cloud API e devolve JSON com `reply`. Para enviar a resposta de volta ao usuario pela Cloud API, ainda falta plugar a chamada autenticada para a Graph API no ponto em que o app hoje retorna esse JSON.
+O endpoint aceita o payload de entrada da Cloud API, processa a conversa e envia a resposta de volta pelo endpoint `/{PHONE_NUMBER_ID}/messages` da Graph API.
 
 Para enviar confirmacoes automaticas e lembretes manuais pelo painel usando a Cloud API, configure:
 
 ```text
 WHATSAPP_ACCESS_TOKEN=
 WHATSAPP_PHONE_NUMBER_ID=
+WHATSAPP_GRAPH_VERSION=v25.0
+```
+
+Na Meta, use:
+
+```text
+Callback URL: https://SEU-DOMINIO/webhook/whatsapp
+Verify token: mesmo valor de WHATSAPP_VERIFY_TOKEN
+Webhook field: messages
 ```
 
 ## IA opcional
