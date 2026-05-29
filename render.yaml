@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: chatbot-agendamento
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: HOST=0.0.0.0 python app.py
+    envVars:
+      - key: WHATSAPP_VERIFY_TOKEN
+        value: agenda-bot
+      - key: OPENAI_POLISH_WHATSAPP
+        value: "false"

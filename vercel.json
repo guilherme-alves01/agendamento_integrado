@@ -1,0 +1,38 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/index.py": {
+      "excludeFiles": "{__pycache__/**,data/**,.env,config.json}"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/static/index.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/static/admin.html"
+    },
+    {
+      "source": "/styles.css",
+      "destination": "/static/styles.css"
+    },
+    {
+      "source": "/app.js",
+      "destination": "/static/app.js"
+    },
+    {
+      "source": "/admin.js",
+      "destination": "/static/admin.js"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/webhook/whatsapp",
+      "destination": "/api/index.py"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agendamentos</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell admin-shell">
+      <section class="admin-header">
+        <div>
+          <p class="eyebrow">Planilha conectada</p>
+          <h1>Agendamentos</h1>
+        </div>
+        <a class="admin-link" href="/">Novo agendamento</a>
+      </section>
+
+      <section class="table-frame">
+        <div class="table-actions">
+          <strong id="bookingCount">0 registros</strong>
+          <button class="secondary-button" id="refreshButton" type="button">Atualizar</button>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Hora</th>
+                <th>Nome</th>
+                <th>WhatsApp</th>
+                <th>Servico</th>
+                <th>Origem</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="bookingRows"></tbody>
+          </table>
+        </div>
+        <p id="emptyState" class="help-text">Nenhum agendamento ainda.</p>
+      </section>
+    </main>
+
+    <script src="/admin.js"></script>
+  </body>
+</html>

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agendamento</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="workspace">
+        <aside class="side-panel" aria-label="Resumo">
+          <div class="brand">
+            <span class="brand-mark" aria-hidden="true">A</span>
+            <div>
+              <strong id="businessName">Agenda Facil</strong>
+              <span>Atendimento com confirmacao automatica</span>
+            </div>
+          </div>
+
+          <div class="status-block">
+            <span class="status-dot"></span>
+            <p>Escolha um servico, data e horario livre. O registro entra direto na planilha CSV.</p>
+          </div>
+
+          <dl class="quick-info">
+            <div>
+              <dt>Canal</dt>
+              <dd>Site + WhatsApp</dd>
+            </div>
+            <div>
+              <dt>Duracao</dt>
+              <dd id="slotSize">30 min</dd>
+            </div>
+            <div>
+              <dt>Planilha</dt>
+              <dd>data/agendamentos.csv</dd>
+            </div>
+          </dl>
+
+          <a class="admin-link" href="/admin">Ver agendamentos</a>
+        </aside>
+
+        <section class="booking-tool" aria-labelledby="pageTitle">
+          <div class="tool-header">
+            <div>
+              <p class="eyebrow">Novo agendamento</p>
+              <h1 id="pageTitle">Reserve um horario</h1>
+            </div>
+            <div class="calendar-chip" aria-hidden="true">
+              <span id="todayDay">29</span>
+              <small id="todayMonth">MAI</small>
+            </div>
+          </div>
+
+          <form id="bookingForm" class="booking-form">
+            <label>
+              Nome
+              <input name="name" autocomplete="name" required placeholder="Seu nome" />
+            </label>
+
+            <label>
+              WhatsApp
+              <input name="phone" autocomplete="tel" required placeholder="(11) 99999-9999" />
+            </label>
+
+            <label>
+              Servico
+              <select name="service" id="serviceSelect" required></select>
+            </label>
+
+            <label>
+              Data
+              <input name="date" id="dateInput" type="date" required />
+            </label>
+
+            <fieldset class="slot-field">
+              <legend>Horario</legend>
+              <div id="slots" class="slots" role="radiogroup" aria-label="Horarios disponiveis"></div>
+              <p id="slotHelp" class="help-text">Escolha uma data para carregar os horarios.</p>
+            </fieldset>
+
+            <label class="full">
+              Observacoes
+              <textarea name="notes" rows="4" placeholder="Ex.: prefiro atendimento online"></textarea>
+            </label>
+
+            <button class="primary-button" type="submit">
+              <span>Confirmar agendamento</span>
+              <span aria-hidden="true">→</span>
+            </button>
+
+            <p id="message" class="message" role="status"></p>
+          </form>
+        </section>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
