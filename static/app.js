@@ -45,7 +45,11 @@ async function loadSlots() {
   }
 
   slotHelp.textContent = "Carregando horarios...";
-  const response = await fetch(`/api/slots?date=${encodeURIComponent(day)}`);
+  const params = new URLSearchParams({
+    date: day,
+    service: serviceSelect.value || "",
+  });
+  const response = await fetch(`/api/slots?${params.toString()}`);
   const data = await response.json();
 
   if (!response.ok) {
@@ -72,6 +76,7 @@ async function loadSlots() {
 }
 
 dateInput.addEventListener("change", loadSlots);
+serviceSelect.addEventListener("change", loadSlots);
 slots.addEventListener("change", (event) => {
   if (event.target.name === "time") {
     selectedTime = event.target.value;

@@ -1,12 +1,16 @@
 {
   "business_name": "Minha Agenda",
   "slot_minutes": 30,
+  "min_notice_hours": 2,
+  "max_days_ahead": 60,
   "services": [
-    "Consulta",
-    "Retorno",
-    "Avaliacao",
-    "Atendimento online"
+    { "name": "Consulta", "duration_minutes": 30 },
+    { "name": "Retorno", "duration_minutes": 30 },
+    { "name": "Avaliacao", "duration_minutes": 60 },
+    { "name": "Atendimento online", "duration_minutes": 30 }
   ],
+  "breaks": [["12:00", "13:00"]],
+  "unavailable_dates": ["2026-12-25"],
   "hours": {
     "monday": ["09:00", "18:00"],
     "tuesday": ["09:00", "18:00"],

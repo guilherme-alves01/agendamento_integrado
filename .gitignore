@@ -4,4 +4,5 @@ config.json
 .env
 data/*.csv
 data/*.json
+data/.~lock*
 .vercel/

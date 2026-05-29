@@ -8,18 +8,49 @@
   </head>
   <body>
     <main class="shell admin-shell">
+      <section class="login-panel" id="loginPanel" hidden>
+        <form id="loginForm" class="login-form">
+          <div>
+            <p class="eyebrow">Acesso restrito</p>
+            <h1>Entrar</h1>
+          </div>
+          <label>
+            Senha do painel
+            <input name="password" type="password" autocomplete="current-password" required />
+          </label>
+          <button class="primary-button" type="submit">
+            <span>Acessar painel</span>
+            <span aria-hidden="true">→</span>
+          </button>
+          <p id="loginMessage" class="message" role="status"></p>
+        </form>
+      </section>
+
+      <div id="adminApp" hidden>
       <section class="admin-header">
         <div>
-          <p class="eyebrow">Planilha conectada</p>
+          <p class="eyebrow">Operacao da agenda</p>
           <h1>Agendamentos</h1>
         </div>
-        <a class="admin-link" href="/">Novo agendamento</a>
+        <div class="header-actions">
+          <a class="admin-link" href="/">Novo agendamento</a>
+          <button class="secondary-button" id="logoutButton" type="button">Sair</button>
+        </div>
       </section>
 
       <section class="table-frame">
         <div class="table-actions">
           <strong id="bookingCount">0 registros</strong>
-          <button class="secondary-button" id="refreshButton" type="button">Atualizar</button>
+          <div class="filter-row">
+            <select id="statusFilter" aria-label="Status">
+              <option value="">Todos</option>
+              <option value="confirmed">Confirmados</option>
+              <option value="cancelled">Cancelados</option>
+            </select>
+            <input id="startFilter" type="date" aria-label="Data inicial" />
+            <input id="endFilter" type="date" aria-label="Data final" />
+            <button class="secondary-button" id="refreshButton" type="button">Atualizar</button>
+          </div>
         </div>
         <div class="table-scroll">
           <table>
@@ -32,6 +63,7 @@
                 <th>Servico</th>
                 <th>Origem</th>
                 <th>Status</th>
+                <th>Acoes</th>
               </tr>
             </thead>
             <tbody id="bookingRows"></tbody>
@@ -39,6 +71,7 @@
         </div>
         <p id="emptyState" class="help-text">Nenhum agendamento ainda.</p>
       </section>
+      </div>
     </main>
 
     <script src="/admin.js"></script>

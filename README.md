@@ -10,6 +10,9 @@ Projeto local para agendar horarios pelo site e pelo WhatsApp, salvando tudo em 
 - Webhook de WhatsApp em `/webhook/whatsapp`
 - Compatibilidade com Twilio WhatsApp Sandbox e payload basico da WhatsApp Cloud API
 - Fluxo inteligente de conversa: servico, data, horario e nome
+- Painel admin com senha
+- Cancelamento, remarcacao e lembrete manual no painel
+- Bloqueio de almoco, datas indisponiveis, antecedencia minima e duracao por servico
 - Opcao de polir respostas com OpenAI via `OPENAI_API_KEY`
 
 ## Como rodar
@@ -23,6 +26,20 @@ Depois abra:
 ```text
 http://127.0.0.1:8000/
 ```
+
+Painel admin:
+
+```text
+http://127.0.0.1:8000/admin
+```
+
+Senha padrao local:
+
+```text
+admin123
+```
+
+Troque em producao usando `ADMIN_PASSWORD` e `ADMIN_SECRET`.
 
 ## Subir para o GitHub
 
@@ -77,6 +94,8 @@ Variaveis opcionais na Vercel:
 
 ```text
 WHATSAPP_VERIFY_TOKEN=agenda-bot
+ADMIN_PASSWORD=uma-senha-forte
+ADMIN_SECRET=um-segredo-longo-aleatorio
 OPENAI_API_KEY=sua-chave-opcional
 OPENAI_POLISH_WHATSAPP=false
 ```
@@ -140,7 +159,11 @@ Campos principais:
 
 - `business_name`: nome mostrado no site
 - `slot_minutes`: tamanho de cada horario
-- `services`: lista de servicos oferecidos
+- `min_notice_hours`: antecedencia minima para agendar
+- `max_days_ahead`: limite maximo de dias no futuro
+- `services`: lista de servicos, com duracao individual
+- `breaks`: intervalos bloqueados, como almoco
+- `unavailable_dates`: datas fechadas no formato `YYYY-MM-DD`
 - `hours`: horario de funcionamento por dia da semana
 
 ## Planilha
@@ -171,6 +194,14 @@ https://SEU-DOMINIO/webhook/whatsapp
 
 O app responde em TwiML quando recebe campos `From` e `Body`, que e o formato padrao do Twilio.
 
+Para enviar lembretes manuais pelo painel, configure:
+
+```text
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_WHATSAPP_FROM=whatsapp:+14155238886
+```
+
 ## WhatsApp Cloud API
 
 Para verificar o webhook, configure o token:
@@ -187,6 +218,13 @@ https://SEU-DOMINIO/webhook/whatsapp
 ```
 
 O endpoint aceita o payload de entrada da Cloud API e devolve JSON com `reply`. Para enviar a resposta de volta ao usuario pela Cloud API, ainda falta plugar a chamada autenticada para a Graph API no ponto em que o app hoje retorna esse JSON.
+
+Para enviar lembretes manuais pelo painel usando a Cloud API, configure:
+
+```text
+WHATSAPP_ACCESS_TOKEN=
+WHATSAPP_PHONE_NUMBER_ID=
+```
 
 ## IA opcional
 
