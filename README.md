@@ -228,6 +228,9 @@ Para enviar confirmacoes automaticas e lembretes manuais pelo painel usando a Cl
 WHATSAPP_ACCESS_TOKEN=
 WHATSAPP_PHONE_NUMBER_ID=
 WHATSAPP_GRAPH_VERSION=v25.0
+WHATSAPP_TEMPLATE_LANGUAGE=pt_BR
+WHATSAPP_CONFIRMATION_TEMPLATE=
+WHATSAPP_REMINDER_TEMPLATE=
 ```
 
 Na Meta, use:
@@ -237,6 +240,14 @@ Callback URL: https://SEU-DOMINIO/webhook/whatsapp
 Verify token: mesmo valor de WHATSAPP_VERIFY_TOKEN
 Webhook field: messages
 ```
+
+Para confirmacoes enviadas a partir do site, crie um template aprovado na Meta. Sugestao de corpo do template:
+
+```text
+Ola {{1}}, seu agendamento de {{2}} foi confirmado para {{3}} as {{4}}.
+```
+
+Depois coloque o nome do template em `WHATSAPP_CONFIRMATION_TEMPLATE`. Para lembrete, use a mesma estrutura ou crie outro template e configure `WHATSAPP_REMINDER_TEMPLATE`.
 
 ## IA opcional
 

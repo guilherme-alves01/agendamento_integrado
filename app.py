@@ -704,6 +704,48 @@ def send_whatsapp_text(phone: str, text: str) -> tuple[bool, str]:
     return False, "Configure Twilio ou WhatsApp Cloud API para enviar mensagens."
 
 
+def send_whatsapp_template(phone: str, template_name: str, values: list[str]) -> tuple[bool, str]:
+    clean_phone = normalize_phone(phone)
+    meta_token = os.getenv("WHATSAPP_ACCESS_TOKEN")
+    phone_number_id = os.getenv("WHATSAPP_PHONE_NUMBER_ID")
+    if not clean_phone:
+        return False, "Telefone invalido."
+    if not meta_token or not phone_number_id:
+        return False, "Configure WhatsApp Cloud API para enviar templates."
+
+    graph_version = os.getenv("WHATSAPP_GRAPH_VERSION", "v25.0")
+    language = os.getenv("WHATSAPP_TEMPLATE_LANGUAGE", "pt_BR")
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": clean_phone,
+        "type": "template",
+        "template": {
+            "name": template_name,
+            "language": {"code": language},
+            "components": [
+                {
+                    "type": "body",
+                    "parameters": [{"type": "text", "text": value} for value in values],
+                }
+            ],
+        },
+    }
+    request = urllib.request.Request(
+        f"https://graph.facebook.com/{graph_version}/{phone_number_id}/messages",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {meta_token}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=12) as response:
+            return 200 <= response.status < 300, "Template enviado via WhatsApp Cloud API."
+    except urllib.error.URLError as exc:
+        return False, f"Falha ao enviar template pela Cloud API: {exc}"
+
+
 def booking_reminder_text(booking: dict[str, str]) -> str:
     formatted_date = datetime.strptime(booking["date"], "%Y-%m-%d").strftime("%d/%m/%Y")
     return (
@@ -724,8 +766,29 @@ def booking_confirmation_text(booking: dict[str, str]) -> str:
 
 
 def send_booking_confirmation(booking: dict[str, str]) -> dict[str, Any]:
+    template = os.getenv("WHATSAPP_CONFIRMATION_TEMPLATE")
+    if template:
+        formatted_date = datetime.strptime(booking["date"], "%Y-%m-%d").strftime("%d/%m/%Y")
+        ok, info = send_whatsapp_template(
+            booking["phone"],
+            template,
+            [booking["name"], booking["service"], formatted_date, booking["time"]],
+        )
+        return {"sent": ok, "message": info, "template": template}
     ok, info = send_whatsapp_text(booking["phone"], booking_confirmation_text(booking))
     return {"sent": ok, "message": info}
+
+
+def send_booking_reminder(booking: dict[str, str]) -> tuple[bool, str]:
+    template = os.getenv("WHATSAPP_REMINDER_TEMPLATE")
+    if template:
+        formatted_date = datetime.strptime(booking["date"], "%Y-%m-%d").strftime("%d/%m/%Y")
+        return send_whatsapp_template(
+            booking["phone"],
+            template,
+            [booking["name"], booking["service"], formatted_date, booking["time"]],
+        )
+    return send_whatsapp_text(booking["phone"], booking_reminder_text(booking))
 
 
 def booking_matches_filters(row: dict[str, str], query: dict[str, list[str]]) -> bool:
@@ -895,7 +958,7 @@ class AppHandler(BaseHTTPRequestHandler):
                 if booking.get("status") == "cancelled":
                     send_json(self, {"error": "Agendamento cancelado nao recebe lembrete."}, HTTPStatus.BAD_REQUEST)
                     return
-                ok, info = send_whatsapp_text(booking["phone"], booking_reminder_text(booking))
+                ok, info = send_booking_reminder(booking)
                 if not ok:
                     send_json(self, {"error": info}, HTTPStatus.BAD_REQUEST)
                     return
