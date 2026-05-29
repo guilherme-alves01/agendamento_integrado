@@ -111,7 +111,11 @@ form.addEventListener("submit", async (event) => {
 
   form.reset();
   dateInput.value = todayISO();
-  setMessage(`Agendamento confirmado para ${result.date} as ${result.time}.`, "success");
+  const confirmation = result.confirmation;
+  const suffix = confirmation?.sent
+    ? " Confirmacao enviada no WhatsApp."
+    : " Confirmacao por WhatsApp fica ativa quando as credenciais forem configuradas.";
+  setMessage(`Agendamento confirmado para ${result.date} as ${result.time}.${suffix}`, "success");
   await loadSlots();
 });
 

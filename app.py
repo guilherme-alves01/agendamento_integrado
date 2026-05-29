@@ -614,14 +614,7 @@ def whatsapp_reply(phone: str, message: str) -> str:
                 saved = append_booking(booking)
                 sessions.pop(phone_key, None)
                 save_sessions(sessions)
-                return maybe_polish_with_openai(
-                    "Agendamento confirmado!\n"
-                    f"Servico: {saved['service']}\n"
-                    f"Data: {datetime.strptime(saved['date'], '%Y-%m-%d').strftime('%d/%m/%Y')}\n"
-                    f"Horario: {saved['time']}\n"
-                    f"Nome: {saved['name']}",
-                    message,
-                )
+                return maybe_polish_with_openai(booking_confirmation_text(saved), message)
 
     sessions[phone_key] = session
     save_sessions(sessions)
@@ -675,7 +668,7 @@ def send_whatsapp_text(phone: str, text: str) -> tuple[bool, str]:
         request.add_header("Content-Type", "application/x-www-form-urlencoded")
         try:
             with urllib.request.urlopen(request, timeout=12) as response:
-                return 200 <= response.status < 300, "Lembrete enviado via Twilio."
+                return 200 <= response.status < 300, "Mensagem enviada via Twilio."
         except urllib.error.URLError as exc:
             return False, f"Falha ao enviar via Twilio: {exc}"
 
@@ -699,7 +692,7 @@ def send_whatsapp_text(phone: str, text: str) -> tuple[bool, str]:
         )
         try:
             with urllib.request.urlopen(request, timeout=12) as response:
-                return 200 <= response.status < 300, "Lembrete enviado via WhatsApp Cloud API."
+                return 200 <= response.status < 300, "Mensagem enviada via WhatsApp Cloud API."
         except urllib.error.URLError as exc:
             return False, f"Falha ao enviar via Cloud API: {exc}"
 
@@ -712,6 +705,22 @@ def booking_reminder_text(booking: dict[str, str]) -> str:
         f"Lembrete do seu agendamento: {booking['service']} em {formatted_date} "
         f"as {booking['time']}. Se precisar remarcar, responda esta mensagem."
     )
+
+
+def booking_confirmation_text(booking: dict[str, str]) -> str:
+    formatted_date = datetime.strptime(booking["date"], "%Y-%m-%d").strftime("%d/%m/%Y")
+    return (
+        "Agendamento confirmado!\n"
+        f"Servico: {booking['service']}\n"
+        f"Data: {formatted_date}\n"
+        f"Horario: {booking['time']}\n"
+        f"Nome: {booking['name']}"
+    )
+
+
+def send_booking_confirmation(booking: dict[str, str]) -> dict[str, Any]:
+    ok, info = send_whatsapp_text(booking["phone"], booking_confirmation_text(booking))
+    return {"sent": ok, "message": info}
 
 
 def booking_matches_filters(row: dict[str, str], query: dict[str, list[str]]) -> bool:
@@ -835,7 +844,11 @@ class AppHandler(BaseHTTPRequestHandler):
             if not valid:
                 send_json(self, {"error": error}, HTTPStatus.BAD_REQUEST)
                 return
-            send_json(self, append_booking(payload), HTTPStatus.CREATED)
+            booking = append_booking(payload)
+            response = booking.copy()
+            if booking.get("source") == "site":
+                response["confirmation"] = send_booking_confirmation(booking)
+            send_json(self, response, HTTPStatus.CREATED)
             return
 
         booking_action = re.fullmatch(r"/api/bookings/([^/]+)/(cancel|reschedule|reminder)", path)

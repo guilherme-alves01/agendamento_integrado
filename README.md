@@ -12,6 +12,7 @@ Projeto local para agendar horarios pelo site e pelo WhatsApp, salvando tudo em 
 - Fluxo inteligente de conversa: servico, data, horario e nome
 - Painel admin com senha
 - Cancelamento, remarcacao e lembrete manual no painel
+- Confirmacao automatica no WhatsApp para agendamentos feitos pelo site, quando Twilio ou WhatsApp Cloud API estiver configurado
 - Bloqueio de almoco, datas indisponiveis, antecedencia minima e duracao por servico
 - Opcao de polir respostas com OpenAI via `OPENAI_API_KEY`
 
@@ -194,7 +195,7 @@ https://SEU-DOMINIO/webhook/whatsapp
 
 O app responde em TwiML quando recebe campos `From` e `Body`, que e o formato padrao do Twilio.
 
-Para enviar lembretes manuais pelo painel, configure:
+Para enviar confirmacoes automaticas e lembretes manuais pelo painel, configure:
 
 ```text
 TWILIO_ACCOUNT_SID=
@@ -219,7 +220,7 @@ https://SEU-DOMINIO/webhook/whatsapp
 
 O endpoint aceita o payload de entrada da Cloud API e devolve JSON com `reply`. Para enviar a resposta de volta ao usuario pela Cloud API, ainda falta plugar a chamada autenticada para a Graph API no ponto em que o app hoje retorna esse JSON.
 
-Para enviar lembretes manuais pelo painel usando a Cloud API, configure:
+Para enviar confirmacoes automaticas e lembretes manuais pelo painel usando a Cloud API, configure:
 
 ```text
 WHATSAPP_ACCESS_TOKEN=
